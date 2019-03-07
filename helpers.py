@@ -5,6 +5,7 @@ import click
 import requests
 
 from cli_exceptions import BadAPIResponse
+from utils import logger
 
 DICT_KEY_STANDARD_LEN = 25
 ITEMS_PER_SCREEN = 15  # TODO: napravi da se ovo podesava u `config` komandi
@@ -14,8 +15,13 @@ ITEMS_PER_SCREEN = 15  # TODO: napravi da se ovo podesava u `config` komandi
 
 def send_api_request(url, verb, data=None, headers={}):
     """Send request and do basic check of response status code. Raise exception if bad response."""
+
+    logger.debug('Sending {verb} request to url: {url}'.format(verb=verb, url=url))
+    logger.debug('Data: {data}'.format(data=data))
+
     response = requests.request(verb, headers=headers, url=url, data=data)
-    if response:  # response.code == 2xx
+    logger.debug('Got response code: {code}'.format(code=response.status_code))
+    if response:  # response.status_code == 2xx
         return response.json()
 
     response = response.json()
@@ -38,6 +44,7 @@ def send_paginated_api_request(url, verb='GET', headers={}):
         next_page = get_next_page_link(response.get('links'))
         yield response, next_page
         if next_page:
+            logger.debug('Sending next page request: {url}'.format(url=next_page))
             response = send_api_request(url=next_page, verb=verb, headers=headers)
 
 
@@ -52,8 +59,8 @@ def normalize_query_params(param_name, value, replacements=None):
 def parse_query_params(query_params, base_url, replacements=None):
     """Creates request url by appending `&key=value` pairs from :param:query_params to :param:base_url"""
 
+    logger.debug('Parsing query params')
     for key, value in query_params.items():
-        # TODO: zameni sve ovo sa urllib ili urlparse
         if value is not None:  # Allows `False`/`True` values, ignores `None`
             if isinstance(value, tuple):
                 for v in value:
@@ -77,33 +84,42 @@ def check_auth_token(cntx, token):
     # TODO: mozda da opali neki request da proveri da li je validno
 
 
-def set_debug(cntx, debug):
-    #TODO: napravi logger
-
-    cntx.ensure_object(dict)
-
-    cntx.obj['DEBUG'] = debug
-    # if debug:
-    #     write_debug_info = True
-    #     print("Running command in DEBUG mode")
-    # else:
-    #     print("Not a DEBUG mode")
+def set_debug(debug):
+    if debug:
+        logger.enable_debug()
 
 
 def set_color(cntx, no_color):
     """Set style components in context.object if style is allowed"""
     cntx.ensure_object(dict)
-    if not no_color:
-        cntx.obj['STYLE'] = {
+    style = {
             'fg': 'red',
             'bold': True,
             'underline': True
         }
 
+    debug_style = {
+            'fg': 'green',
+            'bold': True,
+            'underline': True
+        }
+
+    if no_color:
+        style = dict()
+        debug_style = dict()
+
+    cntx.obj['STYLE'] = style
+    logger.set_debug_style(debug_style)
+
+    logger.debug('Style set.')
+
 
 # ===================================== PARSE INPUT/OUTPUT HELPERS: =============================================
 
 def parse_unknown_params(params):
+    """Purpose of this function is to parse multiple `--metadata.{field}=value` arguments.
+    :arg:params: tuple of unknown params
+    """
 
     structured_params = dict()
     for param in params:

@@ -1,4 +1,4 @@
-#cgcli
+##cgcli
 CLI tool for CGC Public API. 
 
 ### CGC
