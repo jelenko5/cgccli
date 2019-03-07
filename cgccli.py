@@ -1,6 +1,6 @@
 import click
 
-from helpers import set_debug, set_color, check_auth_token
+from helpers import set_color, set_debug, check_auth_token
 
 from subcommands.projects import projects
 from subcommands.files import files
@@ -22,8 +22,8 @@ massive genomics datasets, like The Cancer Genomics Atlas (TCGA), alongside secu
 and scalable computational resources to analyze them. \n
 For more info run: cgccli [SUBCOMMAND] --help"""
 
-    set_debug(cntx, debug)
     set_color(cntx, no_color)
+    set_debug(debug)
     check_auth_token(cntx, token)
 
 
@@ -43,6 +43,5 @@ def entry_point():
         click.echo(e)
 
 
-# TODO: remove this
 if __name__ == '__main__':
     entry_point()

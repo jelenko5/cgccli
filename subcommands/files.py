@@ -30,7 +30,6 @@ update_file_data = dict()
 def files(cntx):
     """Manage your files on CGC. \n
     For more info run: cgccli files [SUBCOMMAND] --help"""
-    # click.echo('Initialized the database')
     # Inserting global variable to context object for easier handling of unstructured arguments
     global update_file_data
     cntx.obj['update_file_data'] = update_file_data
