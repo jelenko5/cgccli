@@ -5,9 +5,11 @@ import urllib
 import click
 import requests
 
+from api_urls import RATE_LIMIT_URL
 from cli_exceptions import BadAPIResponse
 from utils import logger
-from utils.const import DICT_KEY_STANDARD_LEN, STYLE, DEBUG_STYLE
+from utils.const import DICT_KEY_STANDARD_LEN, STYLE, DEBUG_STYLE, DEFAULT_USER
+from utils import configuration
 
 
 # ===================================== API REQUEST HELPERS: =============================================
@@ -75,11 +77,36 @@ def parse_query_params(query_params, base_url, replacements=None):
 
 # ===================================== CONFIG HELPERS: =============================================
 
-def check_auth_token(cntx, token):
-    logger.debug('Checking auth for token: {token}'.format(token=token))
-
-    # TODO: maybe some request to check if token is valid
+def check_auth_token(cntx, token='', username=''):
+    """Check token, validate it and store in context object. This function looks for token in(respectively):
+     - :param: token
+     - configuration of user :param:username
+     - configuration of `last_logged_user`
+     """
+    logger.debug('Checking auth for user: {user} | token: {token}'.format(user=username, token=token))
     cntx.ensure_object(dict)
+
+    if token:
+        logger.debug('Token provided, going with that')
+
+    elif configuration.has_env(profile=username, key='token'):
+        token = configuration.get_env(profile=username, key='token')
+
+    elif configuration.has_env(profile='global', key='last_logged_user'):
+        last_logged_user = configuration.get_env(profile='global', key='last_logged_user')
+        click.echo('Going with last_logged_user: {}'.format(last_logged_user))
+        token = configuration.get_env(profile=last_logged_user, key='token')
+
+    else:
+        raise click.BadOptionUsage('--token', 'No auth token could be found. Please provide auth token '
+                                              'or run `config` command.')
+    if logger.is_debug_mode():
+        logger.debug('Checking remaining rate limit')
+        response = send_api_request(url=RATE_LIMIT_URL, verb='GET', headers={'X-SBG-Auth-Token': token})
+        if response['rate']['remaining'] > 10:
+            logger.debug('Rate limit checked, all good! Remaining: {}'.format(response['rate']['remaining']))
+        else:
+            logger.debug('Running out of allowed requests! Remaining: {}'.format(response['rate']['remaining']))
 
     cntx.obj['auth_token'] = token
 

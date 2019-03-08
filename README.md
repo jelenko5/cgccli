@@ -50,7 +50,9 @@ It is suggested that you start with
 ```bash
 cgccli --help
 ```
-and browse from there.
+and browse from there. After that, you should start with `config` sub-command. Once you run it with :arg:`--username`, 
+CLI will remember you as `last_logged_user` so you dont have to include `--token` argument to commands anymore.
+If you wish to switch to another profile, just include it's username in `--username` argument next time you run `cgccli`
 
 #### Sample usage
 ```bash

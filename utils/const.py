@@ -5,6 +5,10 @@ ITEMS_PER_SCREEN = 15  # TODO: this should be set in `config` command
 
 DOWNLOAD_CHUNK_SIZE = 8192
 
+DEFAULT_USER = 'default'
+
+CONFIG_FILE_PATH = '/.cgccli/config'
+
 STYLE = {
             'fg': 'red',
             'bold': True,

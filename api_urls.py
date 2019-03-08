@@ -9,3 +9,5 @@ FILES_DETAIL_URL = 'https://cgc-api.sbgenomics.com/v2/files/{file_id}'
 FILES_DOWNLOAD_URL = 'https://cgc-api.sbgenomics.com/v2/files/{file_id}/download_info'
 
 WHOAMI_DETAIL_URL = 'https://cgc-api.sbgenomics.com/v2/user'
+
+RATE_LIMIT_URL = 'https://cgc-api.sbgenomics.com/v2/rate_limit'
