@@ -126,7 +126,7 @@ For nested fields use `.` delimiter in `key` to navigate levels, e.g.: \n
 For list values should be inside square brackets, delimited by coma, e.g.: \n
     tags="[new_tag,new-tag2, new tag3]" """
 
-    logger.debug(f'Updating file: {file}, setting arguments: {arguments}')
+    logger.debug('Updating file: {file}, setting arguments: {arguments}'.format(file=file, arguments=arguments))
 
     data = cntx.obj.get('update_file_data')
 
