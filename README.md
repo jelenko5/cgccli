@@ -10,13 +10,23 @@ ___
 ### Installation
 >-Note: This guide is for UNIX-like systems, but it should also work for Windows with some changes
 
+##### Pip installation
+
+You can install `cgccli` inside virtual environment so it won't pollute your global environment. In that 
+case command will only be available if virtual environment is activated(prerequisites: `pip` and/or `virtualenv` 
+or similar)
+    
+```bash
+virtualenv .env
+source .env/bin/activate
+pip install cgccli
+```
+>-Note: First two lines are optional.
+
+##### Manual installation
 1) Pull project from GitHub
 2) Navigate to project directory
 3) Run installation
-
-    You can install `cgccli` inside virtual environment so it won't pollute your global environment. In that 
-    case command will only be available if virtual environment is activated(prerequisites: `pip` and/or `virtualenv` 
-    or similar)
     
     ```bash
     virtualenv .env
