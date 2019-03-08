@@ -3,11 +3,9 @@ import json
 import click
 
 from api_urls import PAGINATED_PROJECTS_LIST_URL, PROJECTS_DETAIL_URL
-from helpers import send_paginated_api_request, send_api_request, ITEMS_PER_SCREEN, parse_query_params
-
-PROJECT_DETAIL_SUCCESS_MESSAGE = '\nDetails for selected project(ID: {project_id}):\n'
-PROJECT_DETAIL_FAILURE_MESSAGE = '\nSorry! Looks like project (ID: {project_id}) doesnt exist. Please try again.\n'
-PROJECT_PROMPT_MESSAGE = '\nInsert `project_id` for project details or `exit` to abort'
+from utils.helpers import send_paginated_api_request, send_api_request, parse_query_params
+from utils.const import ITEMS_PER_SCREEN, PROJECT_DETAIL_SUCCESS_MESSAGE, PROJECT_DETAIL_FAILURE_MESSAGE, \
+    PROJECT_PROMPT_MESSAGE
 
 
 @click.group()
@@ -24,6 +22,7 @@ def projects():
 @click.pass_context
 def stat(cntx, project, fields):
     """Outputs details about requested project."""
+
     base_url = PROJECTS_DETAIL_URL.format(project_id=project) + ('?' if fields else '')
     url = parse_query_params({'fields': fields}, base_url)
     headers = {'X-SBG-Auth-Token': cntx.obj.get('auth_token')}
@@ -44,6 +43,7 @@ def stat(cntx, project, fields):
 @click.pass_context
 def list(cntx, fields):
     """List projects filtered by command options."""
+
     click.echo(click.style('Project list:\n',  **cntx.obj.get('STYLE')))
     headers = {'X-SBG-Auth-Token': cntx.obj.get('auth_token')}
 
