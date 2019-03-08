@@ -19,7 +19,7 @@ or similar)
 ```bash
 virtualenv .env
 source .env/bin/activate
-pip install cgccli
+pip install cgccli  # or cgccli==1.4, because `config` and `remember_last_user` features in latest version might be buggy 
 ```
 >-Note: First two lines are optional.
 
