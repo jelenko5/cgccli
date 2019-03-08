@@ -1,3 +1,4 @@
+import os
 import re
 import urllib
 
@@ -6,12 +7,11 @@ import requests
 
 from cli_exceptions import BadAPIResponse
 from utils import logger
-
-DICT_KEY_STANDARD_LEN = 25
-ITEMS_PER_SCREEN = 15  # TODO: napravi da se ovo podesava u `config` komandi
+from utils.const import DICT_KEY_STANDARD_LEN, STYLE, DEBUG_STYLE
 
 
 # ===================================== API REQUEST HELPERS: =============================================
+
 
 def send_api_request(url, verb, data=None, headers={}):
     """Send request and do basic check of response status code. Raise exception if bad response."""
@@ -76,15 +76,16 @@ def parse_query_params(query_params, base_url, replacements=None):
 # ===================================== CONFIG HELPERS: =============================================
 
 def check_auth_token(cntx, token):
-    print('Checking auth for token: {token}'.format(token=token))
+    logger.debug('Checking auth for token: {token}'.format(token=token))
 
+    # TODO: maybe some request to check if token is valid
     cntx.ensure_object(dict)
 
     cntx.obj['auth_token'] = token
-    # TODO: mozda da opali neki request da proveri da li je validno
 
 
 def set_debug(debug):
+    """Enable debug messages."""
     if debug:
         logger.enable_debug()
 
@@ -92,17 +93,8 @@ def set_debug(debug):
 def set_color(cntx, no_color):
     """Set style components in context.object if style is allowed"""
     cntx.ensure_object(dict)
-    style = {
-            'fg': 'red',
-            'bold': True,
-            'underline': True
-        }
-
-    debug_style = {
-            'fg': 'green',
-            'bold': True,
-            'underline': True
-        }
+    style = STYLE
+    debug_style = DEBUG_STYLE
 
     if no_color:
         style = dict()
@@ -194,3 +186,9 @@ For list values should be inside square brackets, delimited by coma, e.g.: \n
 
         else:
             raise click.BadArgumentUsage(message=self.UPDATE_ARGUMENTS_ERROR_MESSAGE)
+
+
+def check_dir(path):
+    directory, file = os.path.split(path)
+    if not os.path.isdir("/home/el"):
+        os.mkdir(directory)

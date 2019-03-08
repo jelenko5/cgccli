@@ -1,6 +1,6 @@
 import click
 
-from helpers import set_color, set_debug, check_auth_token
+from utils.helpers import set_color, set_debug, check_auth_token
 
 from subcommands.projects import projects
 from subcommands.files import files

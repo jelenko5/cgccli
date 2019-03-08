@@ -1,26 +1,15 @@
 import json
+import requests
 
 import click
 
 from api_urls import PAGINATED_FILES_LIST_URL, FILES_DETAIL_URL, FILES_DOWNLOAD_URL
-from helpers import send_paginated_api_request, parse_query_params, ITEMS_PER_SCREEN, send_api_request, UpdateFileType, \
-    normalize_file_size, parse_unknown_params
-
-PROJECT_PARENT_ERROR_MESSAGE = """`project` should not be used together with `parent`. 
-If parent is used, the call will list the content of the specified folder, within the project to which the folder 
-belongs. If project is used, the call will list the content at the root of the project's files."""
-
-FILE_DETAIL_SUCCESS_MESSAGE = '\nDetails for selected file(ID: {file_id}):\n'
-FILE_DETAIL_FAILURE_MESSAGE = '\nSorry! Looks like file (ID: {file_id}) doesnt exist. Please try again.\n'
-FILE_PROMPT_MESSAGE = '\nInsert `file_id` for file details or `exit` to abort'
-FILE_UPDATE_SUCCESS_MESSAGE = '\nDetails for updated file(ID: {file_id}):\n'
-FILE_DOWNLOAD_PROMPT_MESSAGE = '\nDownload is ready. Are you sure you want to download {size}{unit} of data to ' \
-                               'file {file_path}'
-
-PROJECT_LIST_REPLACEMENTS = {
-    'origin_task': 'origin.task',
-    'origin_dataset': 'origin.dataset'
-}
+from utils import logger
+from utils.helpers import send_paginated_api_request, parse_query_params, send_api_request, UpdateFileType, \
+    normalize_file_size, parse_unknown_params, check_dir
+from utils.const import ITEMS_PER_SCREEN, PROJECT_PARENT_ERROR_MESSAGE, PROJECT_LIST_REPLACEMENTS, \
+    FILE_PROMPT_MESSAGE, FILE_DETAIL_SUCCESS_MESSAGE, FILE_UPDATE_SUCCESS_MESSAGE, FILE_DOWNLOAD_PROMPT_MESSAGE, \
+    DOWNLOAD_CHUNK_SIZE
 
 update_file_data = dict()
 
@@ -129,13 +118,15 @@ def stat(cntx, file, fields):
 @click.pass_context
 def update(cntx, file, arguments):
     """Update the name, the full set of metadata, and/or tags for the specified file.
-Arguments are `{key}={value}` pairs of fields to be updated. Pairs should be separated by whitespace character.
+Arguments are `{key}={value}` pairs(without `--`) of fields to be updated.
+Pairs should be separated by whitespace character.
 Command accepts multiple `{key}={value} pairs for `metadata` and `tags`.
 For nested fields use `.` delimiter in `key` to navigate levels, e.g.: \n
     metadata.some_field="blah blah" or "metadata.some_field=blah blah"  \n
 For list values should be inside square brackets, delimited by coma, e.g.: \n
     tags="[new_tag,new-tag2, new tag3]" """
-    # click.echo(f'Updating file: {file}, setting arguments: {arguments}')
+
+    logger.debug(f'Updating file: {file}, setting arguments: {arguments}')
 
     data = cntx.obj.get('update_file_data')
 
@@ -155,9 +146,10 @@ For list values should be inside square brackets, delimited by coma, e.g.: \n
 @files.command()
 @click.option('--file', help='File ID.')
 @click.option('--dest', help='Download file path.', type=click.Path())
-# @click.option('--force', is_flag=True) # TODO: za pravljenje putanje i fajla
+@click.option('--force', '-f', help="Flag which enables the command to create directory if it doesnt exist.",
+              is_flag=True)
 @click.pass_context
-def download(cntx, file, dest):
+def download(cntx, file, dest, force):
     url = FILES_DOWNLOAD_URL.format(file_id=file)
     headers = {'X-SBG-Auth-Token': cntx.obj.get('auth_token')}
     response = send_api_request(url=url, verb='GET', headers=headers)
@@ -167,7 +159,8 @@ def download(cntx, file, dest):
         click.echo("Could not retrieve download url!")
         return  # or raise
 
-    import requests
+    if force:
+        check_dir(dest)
 
     with requests.get(download_url, stream=True) as r:
         with open(dest, 'wb') as f:
@@ -176,7 +169,7 @@ def download(cntx, file, dest):
                 click.style(FILE_DOWNLOAD_PROMPT_MESSAGE.format(size="%.2f" % file_size, unit=unit, file_path=dest),
                             **cntx.obj.get('STYLE')), abort=True)
             with click.progressbar(length=int(r.headers['content-length']), label='Downloading file') as bar:
-                for chunk in r.iter_content(chunk_size=8192):
+                for chunk in r.iter_content(chunk_size=DOWNLOAD_CHUNK_SIZE):
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
                         bar.update(len(chunk))
