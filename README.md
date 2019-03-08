@@ -1,4 +1,4 @@
-## cgcli
+## cgccli
 CLI tool for CGC Public API. 
 
 ### CGC
@@ -14,19 +14,16 @@ ___
 2) Navigate to project directory
 3) Run installation
 
-    - [Option 1] You can install `cgccli` inside virtual environment so it won't pollute your global environment. In that 
-case command will only be available if virtual environment is activated(prerequisites: `virtualenv` or similar)
-        ```bash
-        virtualenv .env
-        source .env/bin/activate
-        pip install --editable .
-        ```
-
-    - [Option 2] For globally accessible command, run `setup.py` script with argument `install`
-        ```bash
-        python setup.py install
-        ```
-        >-Note: Previous command might require `sudo` privileges.
+    You can install `cgccli` inside virtual environment so it won't pollute your global environment. In that 
+    case command will only be available if virtual environment is activated(prerequisites: `pip` and/or `virtualenv` 
+    or similar)
+    
+    ```bash
+    virtualenv .env
+    source .env/bin/activate
+    pip install --editable .
+    ```
+    >-Note: First two lines are optional. Last command might require `sudo` privileges.
         
 4) Test package installation by running 
     ```bash
