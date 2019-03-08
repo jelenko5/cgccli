@@ -76,7 +76,8 @@ TODO
 ___
 
 ### Coming soon
-- Config settings for UNIX-like and Windows systems
+- Config settings for UNIX-like and Windows systems. This will enable permanent login(so there is no need for `--token`
+ argument) and setting configuration(like `style` settings), etc. 
 - Refactor (moving commands to classes instead of callback functions for easier implementation of new sub-commands)
 - 
 
