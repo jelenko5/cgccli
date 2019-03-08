@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='cgccli',
-    version='1.5',
+    version='1.6',
     author='Marko Jelenkovic',
     author_email='jelenko555@gmail.com',
     descripton='CLI tool for CGC Public API',

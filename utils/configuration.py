@@ -1,10 +1,15 @@
 import os
-import click
+import sys
 
-import configparser
+import click
 
 import utils.logger as logger
 from utils.const import CONFIG_FILE_PATH
+
+if sys.version_info[0] == 2:
+    import ConfigParser as configparser
+else:
+    import configparser
 
 config = configparser.ConfigParser()
 
