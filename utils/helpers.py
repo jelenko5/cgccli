@@ -1,6 +1,11 @@
 import os
 import re
-import urllib
+# from urllib.parse import quote_plus
+
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 import click
 import requests
@@ -67,10 +72,10 @@ def parse_query_params(query_params, base_url, replacements=None):
             if isinstance(value, tuple):
                 for v in value:
                     key, v = normalize_query_params(param_name=key, value=v, replacements=replacements)
-                    base_url += '&{}={}'.format(urllib.parse.quote_plus(key), urllib.parse.quote_plus(v))
+                    base_url += '&{}={}'.format(quote_plus(key), quote_plus(v))
             else:
                 key, value = normalize_query_params(param_name=key, value=value, replacements=replacements)
-                base_url += '&{}={}'.format(urllib.parse.quote_plus(key), urllib.parse.quote_plus(value))
+                base_url += '&{}={}'.format(quote_plus(key), quote_plus(value))
 
     return base_url
 
